@@ -6,7 +6,7 @@
   "version": "1.0.0",
   "library": "DXExtensions",
   "allowedApplications": [],
-  "componentKey": "Sl_DXExtensions_InputBannerMessage",
+  "componentKey": "Yours ruleset name",
   "type": "Field",
   "subtype": "Text-Paragraph",
   "icon": "images/pz-text-area-active.svg",
