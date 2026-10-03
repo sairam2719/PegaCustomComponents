@@ -1,0 +1,167 @@
+{
+  "name": "PegaExtensionsBooleanButton",
+  "label": "Boolean button",
+  "description": "Boolean field rendered as a configurable action button (refresh/search). Each click updates the property and fires field change.",
+  "organization": "Pega",
+  "version": "1.0.0",
+  "library": "Extensions",
+  "allowedApplications": [],
+  "componentKey": "PegaExtensionsBooleanButton",
+  "type": "Field",
+  "subtype": "Boolean",
+  "properties": [
+    {
+      "label": "Field label",
+      "format": "TEXT",
+      "name": "label",
+      "required": true
+    },
+    {
+      "label": "Button label",
+      "format": "TEXT",
+      "name": "buttonLabel"
+    },
+    {
+      "label": "Helper text",
+      "format": "TEXT",
+      "name": "helperText"
+    },
+    {
+      "label": "Tooltip",
+      "format": "TEXT",
+      "name": "tooltip"
+    },
+    {
+      "label": "Hide label",
+      "format": "BOOLEAN",
+      "name": "hideLabel"
+    },
+    {
+      "label": "Button style",
+      "format": "GROUP",
+      "name": "design_group",
+      "properties": [
+        {
+          "label": "Variant",
+          "format": "SELECT",
+          "name": "variant",
+          "required": false,
+          "source": [
+            {
+              "key": "primary",
+              "value": "Primary"
+            },
+            {
+              "key": "secondary",
+              "value": "Secondary"
+            },
+            {
+              "key": "simple",
+              "value": "Simple"
+            }
+          ]
+        },
+        {
+          "label": "Alignment",
+          "format": "SELECT",
+          "name": "alignment",
+          "required": false,
+          "source": [
+            {
+              "key": "left",
+              "value": "Left"
+            },
+            {
+              "key": "center",
+              "value": "Center"
+            },
+            {
+              "key": "right",
+              "value": "Right"
+            }
+          ]
+        },
+        {
+          "label": "Icon",
+          "format": "SELECT",
+          "name": "icon",
+          "required": false,
+          "source": [
+            {
+              "key": "none",
+              "value": "None"
+            },
+            {
+              "key": "refresh",
+              "value": "Refresh"
+            },
+            {
+              "key": "search",
+              "value": "Search"
+            },
+            {
+              "key": "check",
+              "value": "Check"
+            },
+            {
+              "key": "plus",
+              "value": "Plus"
+            }
+          ]
+        },
+        {
+          "label": "Full width",
+          "format": "BOOLEAN",
+          "name": "fullWidth"
+        },
+        {
+          "label": "Background color (CSS, e.g. #0a6ed1)",
+          "format": "TEXT",
+          "name": "backgroundColor"
+        },
+        {
+          "label": "Text color (CSS, e.g. #ffffff)",
+          "format": "TEXT",
+          "name": "textColor"
+        },
+        {
+          "label": "Border radius (CSS, e.g. 8px)",
+          "format": "TEXT",
+          "name": "borderRadius"
+        }
+      ]
+    },
+    {
+      "label": "Behavior",
+      "format": "GROUP",
+      "name": "behavior_group",
+      "properties": [
+        {
+          "label": "On click",
+          "format": "SELECT",
+          "name": "valueBehavior",
+          "required": false,
+          "source": [
+            {
+              "key": "toggle",
+              "value": "Toggle true/false"
+            },
+            {
+              "key": "alwaysTrue",
+              "value": "Always set true"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "defaultConfig": {
+    "label": "@L $this.label",
+    "buttonLabel": "@L $this.label",
+    "hideLabel": true,
+    "variant": "primary",
+    "alignment": "left",
+    "icon": "none",
+    "valueBehavior": "toggle"
+  }
+}
