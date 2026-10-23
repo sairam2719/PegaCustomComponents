@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { StoryObj } from '@storybook/react';
+import { Flex, FormField, Input } from '@pega/cosmos-react-core';
 import PegaExtensionsBooleanButton from './index';
 
 const meta = {
@@ -12,6 +13,7 @@ const meta = {
     validatemessage: { control: 'text' },
     tooltip: { control: 'text' },
     hideLabel: { control: 'boolean' },
+    reserveLabelSpace: { control: 'boolean' },
     required: { control: 'boolean' },
     disabled: { control: 'boolean' },
     readOnly: { control: 'boolean' },
@@ -64,5 +66,36 @@ export const Default: Story = {
     icon: 'none',
     fullWidth: false,
     valueBehavior: 'toggle'
+  }
+};
+
+/* Button with no field label, placed next to an input: the empty label row keeps it level with the input */
+const AlignedDemo = (args: any) => {
+  const [value, setValue] = useState<boolean>(false);
+  const getPConnect = () => ({
+    getStateProps: () => ({ value: '.RefreshFlag' }),
+    getActionsApi: () => ({
+      updateFieldValue: (_p: string, v: boolean) => setValue(v),
+      triggerFieldChange: () => {}
+    })
+  });
+  return (
+    <Flex container={{ gap: 2, alignItems: 'start' }}>
+      <FormField label='Policy number'>
+        <Input value='POL-1001' onChange={() => {}} />
+      </FormField>
+      <PegaExtensionsBooleanButton {...args} value={value} getPConnect={getPConnect} />
+    </Flex>
+  );
+};
+
+export const NoFieldLabelAlignedWithInput: Story = {
+  render: (args: any) => <AlignedDemo {...args} />,
+  args: {
+    label: '',
+    buttonLabel: 'Search',
+    hideLabel: true,
+    reserveLabelSpace: true,
+    icon: 'search'
   }
 };
