@@ -38,36 +38,13 @@ export const StyledButtonWrapper = styled.div<WrapperProps>`
   }
 `;
 
-/* Wraps the whole field.
-   - $bottom: the field is pushed to the bottom of its row/cell (align-self: flex-end),
-     so the button sits beside the input box of the neighbouring field (not beside its label).
-   - $ghostLabel: keeps an invisible but real label row so the button lines up with the input line.
-   - otherwise display: contents keeps the wrapper out of the layout. */
-export const StyledFieldWrapper = styled.div<{ $ghostLabel: boolean; $bottom: boolean }>`
-  ${({ $bottom }) =>
-    $bottom
-      ? css`
-          display: flex;
-          flex-direction: column;
-          justify-content: flex-end;
-          /* flex-end works in a flex row AND a grid cell: the field drops to the bottom of the row
-             (level with the neighbouring input box) even if the row does not stretch its items */
-          align-self: flex-end;
-          margin-top: auto;
-          min-width: 0;
-        `
-      : css`
-          display: contents;
-        `}
-
-  ${({ $ghostLabel }) =>
-    $ghostLabel &&
-    css`
-      label,
-      legend {
-        visibility: hidden;
-        white-space: nowrap;
-        overflow: hidden;
-      }
-    `}
+/* Wraps the whole field and positions it vertically inside its row/cell,
+   the same way "Alignment" positions the button left / center / right.
+   align-self works in a flex row and in a grid cell, so top | center | bottom
+   place the field against the tallest neighbour (e.g. a Quote number input). */
+export const StyledFieldWrapper = styled.div<{ $vAlign: 'flex-start' | 'center' | 'flex-end' }>`
+  display: flex;
+  flex-direction: column;
+  align-self: ${({ $vAlign }) => $vAlign};
+  min-width: 0;
 `;

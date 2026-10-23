@@ -54,11 +54,9 @@ export type BooleanButtonProps = {
   helperText?: string;
   validatemessage?: string;
   hideLabel?: boolean;
-  /** Where the button sits vertically in its row when there is no visible label:
-   *  bottom = pushed to the bottom of the row, level with the neighbouring input box (default)
-   *  inputLine = invisible label row keeps it on the input line
-   *  top = flush at the top, no reserved space */
-  verticalAlign?: 'bottom' | 'inputLine' | 'top';
+  /** Vertical position of the button inside its row (like Alignment does left/center/right):
+   *  top | center | bottom. Bottom (default) lines the button up with the neighbouring input box. */
+  verticalAlign?: 'top' | 'center' | 'bottom';
   readOnly?: boolean;
   disabled?: boolean;
   required?: boolean;
@@ -93,6 +91,7 @@ const toBoolean = (v: BooleanButtonProps['value']): boolean =>
   v === true || (typeof v === 'string' && v.toLowerCase() === 'true');
 
 const ALIGN = { left: 'flex-start', center: 'center', right: 'flex-end' } as const;
+const V_ALIGN = { top: 'flex-start', center: 'center', bottom: 'flex-end' } as const;
 
 /* Only pass values the browser accepts as valid CSS, so bad config never breaks styling */
 const safeCss = (prop: string, v?: string): string | undefined => {
@@ -134,11 +133,7 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
   // Button text from config: custom button label first, otherwise the field label
   const text = (buttonLabel && buttonLabel.trim()) || (label && label.trim()) || 'Button';
 
-  // With no visible label: bottom = anchor to the bottom of the row (beside the input box),
-  // inputLine = keep an invisible real label row, top = no reserved space.
   const hasVisibleLabel = !hideLabel && !!label && label.trim().length > 0;
-  const ghostLabel = !hasVisibleLabel && verticalAlign === 'inputLine';
-  const anchorBottom = verticalAlign === 'bottom';
 
   const pConn = getPConnect();
   const actions = pConn.getActionsApi();
@@ -172,10 +167,10 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
   };
 
   return (
-    <StyledFieldWrapper $ghostLabel={ghostLabel} $bottom={anchorBottom}>
+    <StyledFieldWrapper $vAlign={V_ALIGN[verticalAlign] ?? V_ALIGN.bottom}>
       <FormField
         label={hasVisibleLabel ? (label as string) : 'Label'}
-        labelHidden={!hasVisibleLabel && !ghostLabel}
+        labelHidden={!hasVisibleLabel}
         info={validatemessage || helperText}
         status={validatemessage ? 'error' : undefined}
         required={hasVisibleLabel && required}
