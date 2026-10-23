@@ -45,8 +45,8 @@ const ICONS: Record<string, ReactNode> = {
 };
 
 export type BooleanButtonProps = {
-  /** Standard field label (shown above the button when hideLabel is false) */
-  label: string;
+  /** Standard field label (optional). Shown above the button when hideLabel is false. */
+  label?: string;
   /** Text on the button. Falls back to the field label when empty. */
   buttonLabel?: string;
   /** Property value. Can arrive as boolean or "true"/"false" string. */
@@ -54,6 +54,8 @@ export type BooleanButtonProps = {
   helperText?: string;
   validatemessage?: string;
   hideLabel?: boolean;
+  /** When there is no visible field label, keep an empty label row so the button lines up with neighbouring inputs */
+  reserveLabelSpace?: boolean;
   readOnly?: boolean;
   disabled?: boolean;
   required?: boolean;
@@ -108,6 +110,7 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
     helperText,
     validatemessage,
     hideLabel = true,
+    reserveLabelSpace = true,
     readOnly = false,
     disabled = false,
     required = false,
@@ -126,7 +129,11 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
   } = props;
 
   // Button text from config: custom button label first, otherwise the field label
-  const text = (buttonLabel && buttonLabel.trim()) || label;
+  const text = (buttonLabel && buttonLabel.trim()) || (label && label.trim()) || 'Button';
+
+  // Label row handling: when there is no visible label, keep an invisible one (a non-breaking
+  // space with the same font/line-height as a real label) so the button sits level with inputs
+  const hasVisibleLabel = !hideLabel && !!label && label.trim().length > 0;
 
   const pConn = getPConnect();
   const actions = pConn.getActionsApi();
@@ -145,7 +152,7 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
       <FieldValueList
         variant={displayMode === 'LABELS_LEFT' ? 'inline' : 'stacked'}
         data-testid={testId}
-        fields={[{ id: 'value', name: hideLabel ? '' : label, value: current.current ? 'Yes' : 'No' }]}
+        fields={[{ id: 'value', name: hasVisibleLabel ? (label as string) : '', value: current.current ? 'Yes' : 'No' }]}
       />
     );
   }
@@ -161,11 +168,11 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
 
   return (
     <FormField
-      label={label}
-      labelHidden={hideLabel}
+      label={hasVisibleLabel ? (label as string) : '\u00A0'}
+      labelHidden={!hasVisibleLabel && !reserveLabelSpace}
       info={validatemessage || helperText}
       status={validatemessage ? 'error' : undefined}
-      required={required}
+      required={hasVisibleLabel && required}
       testId={testId}
     >
       <StyledButtonWrapper
