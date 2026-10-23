@@ -39,8 +39,8 @@ export const StyledButtonWrapper = styled.div<WrapperProps>`
 `;
 
 /* Wraps the whole field.
-   - $bottom: the field fills the height of its row/cell and pushes the button to the bottom,
-     so it sits beside the input box of the neighbouring field (not beside its label).
+   - $bottom: the field is pushed to the bottom of its row/cell (align-self: flex-end),
+     so the button sits beside the input box of the neighbouring field (not beside its label).
    - $ghostLabel: keeps an invisible but real label row so the button lines up with the input line.
    - otherwise display: contents keeps the wrapper out of the layout. */
 export const StyledFieldWrapper = styled.div<{ $ghostLabel: boolean; $bottom: boolean }>`
@@ -50,9 +50,11 @@ export const StyledFieldWrapper = styled.div<{ $ghostLabel: boolean; $bottom: bo
           display: flex;
           flex-direction: column;
           justify-content: flex-end;
-          align-self: stretch;
-          height: 100%;
-          width: 100%;
+          /* flex-end works in a flex row AND a grid cell: the field drops to the bottom of the row
+             (level with the neighbouring input box) even if the row does not stretch its items */
+          align-self: flex-end;
+          margin-top: auto;
+          min-width: 0;
         `
       : css`
           display: contents;
