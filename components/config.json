@@ -3,7 +3,7 @@
   "label": "Boolean button",
   "description": "Boolean field rendered as a configurable action button (refresh/search). Each click updates the property and fires field change.",
   "organization": "Pega",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "library": "Extensions",
   "allowedApplications": [],
   "componentKey": "PegaExtensionsBooleanButton",
@@ -13,8 +13,7 @@
     {
       "label": "Field label (optional)",
       "format": "TEXT",
-      "name": "label",
-      "required": false
+      "name": "label"
     },
     {
       "label": "Button label",
