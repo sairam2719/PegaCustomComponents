@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import type { StoryObj } from '@storybook/react';
-import { Flex, FormField, Input } from '@pega/cosmos-react-core';
-import PegaExtensionsBooleanButton from './index';
-
+import HanoverEFOLibraryBooleanButton from './index';
 const meta = {
-  title: 'Extensions/Boolean button',
-  component: PegaExtensionsBooleanButton,
+  title: 'HanoverEFOLibraryBooleanButton',
+  component: HanoverEFOLibraryBooleanButton,
   argTypes: {
     label: { control: 'text' },
     buttonLabel: { control: 'text' },
@@ -13,7 +11,6 @@ const meta = {
     validatemessage: { control: 'text' },
     tooltip: { control: 'text' },
     hideLabel: { control: 'boolean' },
-    reserveLabelSpace: { control: 'boolean' },
     required: { control: 'boolean' },
     disabled: { control: 'boolean' },
     readOnly: { control: 'boolean' },
@@ -32,11 +29,8 @@ const meta = {
     displayMode: { table: { disable: true } }
   }
 };
-
 export default meta;
-
-type Story = StoryObj<typeof PegaExtensionsBooleanButton>;
-
+type Story = StoryObj<typeof HanoverEFOLibraryBooleanButton>;
 const Demo = (args: any) => {
   const [value, setValue] = useState<boolean>(false);
   const getPConnect = () => ({
@@ -48,12 +42,11 @@ const Demo = (args: any) => {
   });
   return (
     <>
-      <PegaExtensionsBooleanButton {...args} value={value} getPConnect={getPConnect} />
+      <HanoverEFOLibraryBooleanButton {...args} value={value} getPConnect={getPConnect} />
       <p>Property value: {String(value)}</p>
     </>
   );
 };
-
 export const Default: Story = {
   render: (args: any) => <Demo {...args} />,
   args: {
@@ -66,36 +59,5 @@ export const Default: Story = {
     icon: 'none',
     fullWidth: false,
     valueBehavior: 'toggle'
-  }
-};
-
-/* Button with no field label, placed next to an input: the empty label row keeps it level with the input */
-const AlignedDemo = (args: any) => {
-  const [value, setValue] = useState<boolean>(false);
-  const getPConnect = () => ({
-    getStateProps: () => ({ value: '.RefreshFlag' }),
-    getActionsApi: () => ({
-      updateFieldValue: (_p: string, v: boolean) => setValue(v),
-      triggerFieldChange: () => {}
-    })
-  });
-  return (
-    <Flex container={{ gap: 2, alignItems: 'start' }}>
-      <FormField label='Policy number'>
-        <Input value='POL-1001' onChange={() => {}} />
-      </FormField>
-      <PegaExtensionsBooleanButton {...args} value={value} getPConnect={getPConnect} />
-    </Flex>
-  );
-};
-
-export const NoFieldLabelAlignedWithInput: Story = {
-  render: (args: any) => <AlignedDemo {...args} />,
-  args: {
-    label: '',
-    buttonLabel: 'Search',
-    hideLabel: true,
-    reserveLabelSpace: true,
-    icon: 'search'
   }
 };
