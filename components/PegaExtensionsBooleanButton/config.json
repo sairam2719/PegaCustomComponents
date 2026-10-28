@@ -1,25 +1,27 @@
 {
-  "name": "PegaExtensionsBooleanButton",
+  "name": "Hanover_EFOLibrary_BooleanButton",
   "label": "Boolean button",
   "description": "Boolean field rendered as a configurable action button (refresh/search). Each click updates the property and fires field change.",
   "organization": "Pega",
-  "version": "1.0.0",
-  "library": "Extensions",
+  "version": "1.0.2",
+  "library": "EFOLibrary",
   "allowedApplications": [],
-  "componentKey": "PegaExtensionsBooleanButton",
+  "componentKey": "Hanover_EFOLibrary_BooleanButton",
   "type": "Field",
   "subtype": "Boolean",
   "properties": [
     {
-      "label": "Field label",
+      "label": "Field label (optional)",
       "format": "TEXT",
       "name": "label",
-      "required": true
+      "required": false
+
     },
     {
       "label": "Button label",
       "format": "TEXT",
-      "name": "buttonLabel"
+      "name": "buttonLabel",
+       "required": false
     },
     {
       "label": "Helper text",
@@ -62,7 +64,7 @@
           ]
         },
         {
-          "label": "Alignment",
+          "label": "Horizontal alignment",
           "format": "SELECT",
           "name": "alignment",
           "required": false,
@@ -78,6 +80,26 @@
             {
               "key": "right",
               "value": "Right"
+            }
+          ]
+        },
+        {
+          "label": "Vertical alignment",
+          "format": "SELECT",
+          "name": "verticalAlign",
+          "required": false,
+          "source": [
+            {
+              "key": "top",
+              "value": "Top"
+            },
+            {
+              "key": "center",
+              "value": "Center"
+            },
+            {
+              "key": "bottom",
+              "value": "Bottom"
             }
           ]
         },
@@ -162,6 +184,7 @@
     "variant": "primary",
     "alignment": "left",
     "icon": "none",
-    "valueBehavior": "toggle"
+    "valueBehavior": "toggle",
+    "verticalAlign": "bottom"
   }
 }
