@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { Button, FieldValueList, FormField, withConfiguration } from '@pega/cosmos-react-core';
 import { StyledButtonWrapper } from './styles';
-
 /* Small inline SVG icons: no icon-registry imports, so no Cosmos-version build issues */
 const svgProps = {
   width: 16,
@@ -17,7 +16,6 @@ const svgProps = {
   focusable: false,
   style: { marginRight: '0.5rem', flex: '0 0 auto' }
 };
-
 const ICONS: Record<string, ReactNode> = {
   refresh: (
     <svg {...svgProps}>
@@ -43,10 +41,9 @@ const ICONS: Record<string, ReactNode> = {
     </svg>
   )
 };
-
 export type BooleanButtonProps = {
-  /** Standard field label (optional). Shown above the button when hideLabel is false. */
-  label?: string;
+  /** Standard field label (shown above the button when hideLabel is false) */
+  label: string;
   /** Text on the button. Falls back to the field label when empty. */
   buttonLabel?: string;
   /** Property value. Can arrive as boolean or "true"/"false" string. */
@@ -54,14 +51,11 @@ export type BooleanButtonProps = {
   helperText?: string;
   validatemessage?: string;
   hideLabel?: boolean;
-  /** When there is no visible field label, keep an empty label row so the button lines up with neighbouring inputs */
-  reserveLabelSpace?: boolean;
   readOnly?: boolean;
   disabled?: boolean;
   required?: boolean;
   testId?: string;
   displayMode?: string;
-
   /* ---- Design options (all optional) ---- */
   /** primary | secondary | simple */
   variant?: 'primary' | 'secondary' | 'simple';
@@ -78,19 +72,14 @@ export type BooleanButtonProps = {
   textColor?: string;
   /** Any valid CSS length, e.g. 8px or 999px */
   borderRadius?: string;
-
   /* ---- Behavior options ---- */
   /** toggle: every click flips true/false. alwaysTrue: every click sets true. */
   valueBehavior?: 'toggle' | 'alwaysTrue';
-
   getPConnect: () => any;
 };
-
 const toBoolean = (v: BooleanButtonProps['value']): boolean =>
   v === true || (typeof v === 'string' && v.toLowerCase() === 'true');
-
 const ALIGN = { left: 'flex-start', center: 'center', right: 'flex-end' } as const;
-
 /* Only pass values the browser accepts as valid CSS, so bad config never breaks styling */
 const safeCss = (prop: string, v?: string): string | undefined => {
   const value = v?.trim();
@@ -101,7 +90,6 @@ const safeCss = (prop: string, v?: string): string | undefined => {
     return undefined;
   }
 };
-
 const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
   const {
     label,
@@ -110,7 +98,6 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
     helperText,
     validatemessage,
     hideLabel = true,
-    reserveLabelSpace = true,
     readOnly = false,
     disabled = false,
     required = false,
@@ -127,36 +114,27 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
     valueBehavior = 'toggle',
     getPConnect
   } = props;
-
   // Button text from config: custom button label first, otherwise the field label
-  const text = (buttonLabel && buttonLabel.trim()) || (label && label.trim()) || 'Button';
-
-  // Label row handling: when there is no visible label, keep an invisible one (a non-breaking
-  // space with the same font/line-height as a real label) so the button sits level with inputs
-  const hasVisibleLabel = !hideLabel && !!label && label.trim().length > 0;
-
+  const text = (buttonLabel && buttonLabel.trim()) || label;
   const pConn = getPConnect();
   const actions = pConn.getActionsApi();
   // e.g. ".RefreshFlag" - the property bound to this field in the form
   const propName: string = pConn.getStateProps().value;
-
   // Tracks the current value so rapid clicks always behave correctly
   const current = useRef<boolean>(toBoolean(value));
   useEffect(() => {
     current.current = toBoolean(value);
   }, [value]);
-
   // Read-only / display-only (review, summary, locked forms)
   if (displayMode === 'DISPLAY_ONLY' || displayMode === 'LABELS_LEFT' || readOnly) {
     return (
       <FieldValueList
         variant={displayMode === 'LABELS_LEFT' ? 'inline' : 'stacked'}
         data-testid={testId}
-        fields={[{ id: 'value', name: hasVisibleLabel ? (label as string) : '', value: current.current ? 'Yes' : 'No' }]}
+        fields={[{ id: 'value', name: hideLabel ? '' : label, value: current.current ? 'Yes' : 'No' }]}
       />
     );
   }
-
   const handleClick = () => {
     // toggle: flips every click so a field-change always fires.
     // alwaysTrue: sets true (reset it in your activity / data transform).
@@ -165,14 +143,13 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
     actions.updateFieldValue(propName, next);
     actions.triggerFieldChange(propName, next);
   };
-
   return (
     <FormField
-      label={hasVisibleLabel ? (label as string) : '\u00A0'}
-      labelHidden={!hasVisibleLabel && !reserveLabelSpace}
+      label={label}
+      labelHidden={hideLabel}
       info={validatemessage || helperText}
       status={validatemessage ? 'error' : undefined}
-      required={hasVisibleLabel && required}
+      required={required}
       testId={testId}
     >
       <StyledButtonWrapper
@@ -196,5 +173,5 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
     </FormField>
   );
 };
-
 export default withConfiguration(PegaExtensionsBooleanButton);
+
