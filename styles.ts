@@ -2,7 +2,6 @@ import styled, { css } from 'styled-components';
 
 interface WrapperProps {
   $align: string;
-  $fullWidth: boolean;
   $bg?: string;
   $color?: string;
   $radius?: string;
@@ -10,10 +9,13 @@ interface WrapperProps {
 }
 
 export const StyledButtonWrapper = styled.div<WrapperProps>(
-  ({ $align, $fullWidth, $bg, $color, $radius, $disabled }) => css`
-    display: flex;
+  ({ $align, $bg, $color, $radius, $disabled }) => css`
+    display: inline-flex;
+    align-items: center;
     justify-content: ${$align};
-    width: 100%;
+    width: fit-content;
+    max-width: 100%;
+    min-width: 0;
     margin: 0;
     padding: 0;
     border: none;
@@ -21,7 +23,8 @@ export const StyledButtonWrapper = styled.div<WrapperProps>(
     background: transparent;
 
     button {
-      ${$fullWidth ? 'width: 100%;' : ''}
+      width: fit-content;
+      max-width: 100%;
       ${$bg ? `background-color: ${$bg};` : ''}
       ${$bg ? `border-color: ${$bg};` : ''}
       ${$color ? `color: ${$color};` : ''}

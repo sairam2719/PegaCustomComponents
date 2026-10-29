@@ -61,8 +61,6 @@ export type BooleanButtonProps = {
   variant?: 'primary' | 'secondary' | 'simple';
   /** left | center | right */
   alignment?: 'left' | 'center' | 'right';
-  /** Stretch button to the full width of the field */
-  fullWidth?: boolean;
   /** none | refresh | search | check | plus */
   icon?: 'none' | 'refresh' | 'search' | 'check' | 'plus';
   /** Hover tooltip */
@@ -104,7 +102,6 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
     displayMode,
     variant = 'primary',
     alignment = 'left',
-    fullWidth = false,
     icon = 'none',
     tooltip,
     backgroundColor,
@@ -145,11 +142,25 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
     actions.triggerFieldChange(propName, next);
   };
   return (
-    <div data-testid={testId} style={{ width: '100%' }}>
+    <div
+      data-testid={testId}
+      style={{
+        display: 'inline-flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        width: 'fit-content',
+        maxWidth: '100%',
+        background: 'transparent',
+        border: 0,
+        outline: 'none',
+        boxShadow: 'none',
+        padding: 0,
+        margin: 0
+      }}
+    >
       {!hideLabel && label ? <Text variant='secondary'>{label}</Text> : null}
       <StyledButtonWrapper
         $align={ALIGN[alignment] ?? ALIGN.left}
-        $fullWidth={fullWidth}
         $bg={safeCss('background-color', backgroundColor)}
         $color={safeCss('color', textColor)}
         $radius={safeCss('border-radius', borderRadius)}
