@@ -52,7 +52,8 @@ export type BooleanButtonProps = {
   validatemessage?: string;
   hideLabel?: boolean;
   readOnly?: boolean;
-  disabled?: boolean;
+  /** Can arrive as boolean or "true"/"false" string (from Disabled condition in config) */
+  disabled?: boolean | string;
   required?: boolean;
   testId?: string;
   displayMode?: string;
@@ -99,7 +100,7 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
     validatemessage,
     hideLabel = true,
     readOnly = false,
-    disabled = false,
+    disabled: disabledProp = false,
     required = false,
     testId,
     displayMode,
@@ -114,6 +115,8 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
     valueBehavior = 'toggle',
     getPConnect
   } = props;
+  // "disabled" can arrive as boolean true or the string "true" (Always / When condition)
+  const disabled = disabledProp === true || String(disabledProp).toLowerCase() === 'true';
   // Button text from config: custom button label first, otherwise the field label
   const text = (buttonLabel && buttonLabel.trim()) || label;
   const pConn = getPConnect();
@@ -136,6 +139,8 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
     );
   }
   const handleClick = () => {
+    // Safety guard: a disabled button must never write a value
+    if (disabled) return;
     // toggle: flips every click so a field-change always fires.
     // alwaysTrue: sets true (reset it in your activity / data transform).
     const next = valueBehavior === 'alwaysTrue' ? true : !current.current;
@@ -174,4 +179,3 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
   );
 };
 export default withConfiguration(PegaExtensionsBooleanButton);
-
