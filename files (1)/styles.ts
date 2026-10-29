@@ -15,6 +15,10 @@ export const StyledButtonWrapper = styled.div<WrapperProps>(
     justify-content: ${$align};
     width: 100%;
     margin: 0;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    background: transparent;
 
     button {
       ${$fullWidth ? 'width: 100%;' : ''}
