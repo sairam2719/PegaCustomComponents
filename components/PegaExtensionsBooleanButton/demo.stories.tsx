@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import type { StoryObj } from '@storybook/react';
-import HanoverEFOLibraryBooleanButton from './index';
+import PegaEFOLibraryBooleanButton from './index';
 const meta = {
-  title: 'HanoverEFOLibraryBooleanButton',
-  component: HanoverEFOLibraryBooleanButton,
+  title: 'PegaEFOLibraryBooleanButton',
+  component: PegaEFOLibraryBooleanButton,
   argTypes: {
     label: { control: 'text' },
     buttonLabel: { control: 'text' },
@@ -19,30 +19,34 @@ const meta = {
     alignment: { control: 'select', options: ['left', 'center', 'right'] },
     icon: { control: 'select', options: ['none', 'refresh', 'search', 'check', 'plus'] },
     valueBehavior: { control: 'select', options: ['toggle', 'alwaysTrue'] },
+    displayValue: { control: 'select', options: ['Yes/No', 'True/False'] },
+    displayMode: {
+      control: 'select',
+      options: ['', 'DISPLAY_ONLY', 'LABELS_LEFT', 'STACKED_LARGE_VAL']
+    },
     backgroundColor: { control: 'color' },
     textColor: { control: 'color' },
     borderRadius: { control: 'text' },
     // not editable in the controls panel
     value: { table: { disable: true } },
     getPConnect: { table: { disable: true } },
-    testId: { table: { disable: true } },
-    displayMode: { table: { disable: true } }
+    testId: { table: { disable: true } }
   }
 };
 export default meta;
-type Story = StoryObj<typeof HanoverEFOLibraryBooleanButton>;
+type Story = StoryObj<typeof PegaEFOLibraryBooleanButton>;
 const Demo = (args: any) => {
-  const [value, setValue] = useState<boolean>(false);
+  const [value, setValue] = useState<boolean>(args.initialValue ?? false);
   const getPConnect = () => ({
     getStateProps: () => ({ value: '.RefreshFlag' }),
     getActionsApi: () => ({
-      updateFieldValue: (_p: string, v: boolean) => setValue(v),
+      updateFieldValue: (_p: string, v: unknown) => setValue(Boolean(v)),
       triggerFieldChange: () => {}
     })
   });
   return (
     <>
-      <HanoverEFOLibraryBooleanButton {...args} value={value} getPConnect={getPConnect} />
+      <PegaEFOLibraryBooleanButton {...args} value={value} getPConnect={getPConnect} />
       <p>Property value: {String(value)}</p>
     </>
   );
@@ -58,6 +62,40 @@ export const Default: Story = {
     alignment: 'left',
     icon: 'none',
     fullWidth: false,
-    valueBehavior: 'toggle'
+    valueBehavior: 'toggle',
+    displayValue: 'Yes/No'
+  }
+};
+/* Disabled: the button is greyed out and clicking it does nothing */
+export const Disabled: Story = {
+  render: (args: any) => <Demo {...args} />,
+  args: {
+    ...Default.args,
+    disabled: true
+  }
+};
+/* Read-only: shows text using the Display Value setting (value is true here) */
+export const ReadOnlyYesNo: Story = {
+  render: (args: any) => <Demo {...args} initialValue={true} />,
+  args: {
+    ...Default.args,
+    readOnly: true,
+    displayValue: 'Yes/No'
+  }
+};
+export const ReadOnlyTrueFalse: Story = {
+  render: (args: any) => <Demo {...args} initialValue={false} />,
+  args: {
+    ...Default.args,
+    readOnly: true,
+    displayValue: 'True/False'
+  }
+};
+/* Large value display mode */
+export const StackedLargeValue: Story = {
+  render: (args: any) => <Demo {...args} initialValue={true} />,
+  args: {
+    ...Default.args,
+    displayMode: 'STACKED_LARGE_VAL'
   }
 };
