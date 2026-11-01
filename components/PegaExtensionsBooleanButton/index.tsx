@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
-import { Button, FieldValueList, FormField, withConfiguration } from '@pega/cosmos-react-core';
+import { Button, FieldValueList, FormField, Text, withConfiguration } from '@pega/cosmos-react-core';
 import { StyledButtonWrapper } from './styles';
 /* Small inline SVG icons: no icon-registry imports, so no Cosmos-version build issues */
 const svgProps = {
@@ -41,29 +41,47 @@ const ICONS: Record<string, ReactNode> = {
     </svg>
   )
 };
+
+/* Minimal shape of the PConnect object this component uses (replaces `any`) */
+type PConnLike = {
+  getActionsApi: () => {
+    updateFieldValue: (propName: string, value: unknown) => void;
+    triggerFieldChange: (propName: string, value: unknown) => void;
+  };
+  getStateProps: () => { value: string };
+  /** Pega localization helper; may not exist in every Pega version */
+  getLocalizedValue?: (value: string, localePath?: string, localeReference?: string) => string;
+};
+
 export type BooleanButtonProps = {
   /** Standard field label (shown above the button when hideLabel is false) */
   label: string;
   /** Text on the button. Falls back to the field label when empty. */
   buttonLabel?: string;
-  /** Property value. Can arrive as boolean or "true"/"false" string. */
-  value?: boolean | string | null;
+  /** Property value. Can arrive as boolean, "true"/"false" string, 1/0, or null/empty. */
+  value?: boolean | string | number | null;
   helperText?: string;
   validatemessage?: string;
-  hideLabel?: boolean;
-  readOnly?: boolean;
+  /** Can arrive as boolean or "true"/"false" string */
+  hideLabel?: boolean | string;
+  /** Can arrive as boolean or "true"/"false" string */
+  readOnly?: boolean | string;
   /** Can arrive as boolean or "true"/"false" string (from Disabled condition in config) */
   disabled?: boolean | string;
-  required?: boolean;
+  /** Can arrive as boolean or "true"/"false" string */
+  required?: boolean | string;
   testId?: string;
   displayMode?: string;
+  /* ---- Read-only display (from "Display Value" in config) ---- */
+  /** 'Yes/No' | 'True/False'. Default 'Yes/No' */
+  displayValue?: string;
   /* ---- Design options (all optional) ---- */
   /** primary | secondary | simple */
   variant?: 'primary' | 'secondary' | 'simple';
   /** left | center | right */
   alignment?: 'left' | 'center' | 'right';
-  /** Stretch button to the full width of the field */
-  fullWidth?: boolean;
+  /** Stretch button to the full width of the field. Can arrive as boolean or string */
+  fullWidth?: boolean | string;
   /** none | refresh | search | check | plus */
   icon?: 'none' | 'refresh' | 'search' | 'check' | 'plus';
   /** Hover tooltip */
@@ -76,10 +94,26 @@ export type BooleanButtonProps = {
   /* ---- Behavior options ---- */
   /** toggle: every click flips true/false. alwaysTrue: every click sets true. */
   valueBehavior?: 'toggle' | 'alwaysTrue';
-  getPConnect: () => any;
+  getPConnect: () => PConnLike;
 };
+
+/* Handles true, "true", 1 and "1" */
 const toBoolean = (v: BooleanButtonProps['value']): boolean =>
-  v === true || (typeof v === 'string' && v.toLowerCase() === 'true');
+  v === true ||
+  v === 1 ||
+  (typeof v === 'string' && ['true', '1'].includes(v.trim().toLowerCase()));
+/* readOnly / disabled / required / hideLabel / fullWidth can arrive as boolean or the string "true"/"false" */
+const toFlag = (v: boolean | string | undefined): boolean =>
+  v === true || String(v).trim().toLowerCase() === 'true';
+/* Read-only text for each "Display Value" dropdown option */
+const DISPLAY_LABELS: Record<string, { trueText: string; falseText: string }> = {
+  'Yes/No': { trueText: 'Yes', falseText: 'No' },
+  'True/False': { trueText: 'True', falseText: 'False' }
+};
+/* Display modes Pega uses when the field must be shown as text, not as a clickable control */
+const READ_ONLY_DISPLAY_MODES = ['DISPLAY_ONLY', 'LABELS_LEFT', 'STACKED_LARGE_VAL'];
+/* Clicks closer together than this are ignored, so a double-click can't flip the value twice */
+const CLICK_GUARD_MS = 400;
 const ALIGN = { left: 'flex-start', center: 'center', right: 'flex-end' } as const;
 /* Only pass values the browser accepts as valid CSS, so bad config never breaks styling */
 const safeCss = (prop: string, v?: string): string | undefined => {
@@ -98,15 +132,16 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
     value,
     helperText,
     validatemessage,
-    hideLabel = true,
-    readOnly = false,
+    hideLabel: hideLabelProp,
+    readOnly: readOnlyProp = false,
     disabled: disabledProp = false,
-    required = false,
+    required: requiredProp = false,
     testId,
     displayMode,
+    displayValue = 'Yes/No',
     variant = 'primary',
     alignment = 'left',
-    fullWidth = false,
+    fullWidth: fullWidthProp = false,
     icon = 'none',
     tooltip,
     backgroundColor,
@@ -115,32 +150,66 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
     valueBehavior = 'toggle',
     getPConnect
   } = props;
-  // "disabled" can arrive as boolean true or the string "true" (Always / When condition)
-  const disabled = disabledProp === true || String(disabledProp).toLowerCase() === 'true';
+  // hideLabel defaults to true when not provided
+  const hideLabel = hideLabelProp === undefined ? true : toFlag(hideLabelProp);
+  const readOnly = toFlag(readOnlyProp);
+  const disabled = toFlag(disabledProp);
+  const required = toFlag(requiredProp);
+  const fullWidth = toFlag(fullWidthProp);
   // Button text from config: custom button label first, otherwise the field label
   const text = (buttonLabel && buttonLabel.trim()) || label;
   const pConn = getPConnect();
   const actions = pConn.getActionsApi();
   // e.g. ".RefreshFlag" - the property bound to this field in the form
   const propName: string = pConn.getStateProps().value;
+  // Uses Pega localization when available, otherwise keeps the English text
+  const localize = (s: string): string => {
+    try {
+      return pConn.getLocalizedValue?.(s, '', '') || s;
+    } catch {
+      return s;
+    }
+  };
   // Tracks the current value so rapid clicks always behave correctly
   const current = useRef<boolean>(toBoolean(value));
+  // Time of the last accepted click (see CLICK_GUARD_MS)
+  const lastClick = useRef<number>(0);
   useEffect(() => {
     current.current = toBoolean(value);
   }, [value]);
   // Read-only / display-only (review, summary, locked forms)
-  if (displayMode === 'DISPLAY_ONLY' || displayMode === 'LABELS_LEFT' || readOnly) {
+  if (READ_ONLY_DISPLAY_MODES.includes(displayMode ?? '') || readOnly) {
+    const labels = DISPLAY_LABELS[displayValue] ?? DISPLAY_LABELS['Yes/No'];
+    // true -> trueText; false, null or empty -> falseText
+    const displayText = localize(toBoolean(value) ? labels.trueText : labels.falseText);
+    const largeValue = displayMode === 'STACKED_LARGE_VAL';
     return (
       <FieldValueList
         variant={displayMode === 'LABELS_LEFT' ? 'inline' : 'stacked'}
         data-testid={testId}
-        fields={[{ id: 'value', name: hideLabel ? '' : label, value: current.current ? 'Yes' : 'No' }]}
+        fields={[
+          {
+            id: 'value',
+            name: hideLabel ? '' : label,
+            value: largeValue ? (
+              <Text variant='h1' as='span'>
+                {displayText}
+              </Text>
+            ) : (
+              displayText
+            )
+          }
+        ]}
       />
     );
   }
   const handleClick = () => {
     // Safety guard: a disabled button must never write a value
     if (disabled) return;
+    // Ignore a second click that arrives right after the first (double-click)
+    const now = Date.now();
+    if (now - lastClick.current < CLICK_GUARD_MS) return;
+    lastClick.current = now;
     // toggle: flips every click so a field-change always fires.
     // alwaysTrue: sets true (reset it in your activity / data transform).
     const next = valueBehavior === 'alwaysTrue' ? true : !current.current;
@@ -163,12 +232,14 @@ const PegaExtensionsBooleanButton = (props: BooleanButtonProps) => {
         $bg={safeCss('background-color', backgroundColor)}
         $color={safeCss('color', textColor)}
         $radius={safeCss('border-radius', borderRadius)}
+        $disabled={disabled}
       >
         <Button
           type='button'
           variant={variant}
           disabled={disabled}
           title={tooltip || undefined}
+          aria-pressed={valueBehavior === 'toggle' ? toBoolean(value) : undefined}
           onClick={handleClick}
         >
           {icon !== 'none' && ICONS[icon]}
