@@ -3,6 +3,7 @@ import styled, { css } from 'styled-components';
 interface WrapperProps {
   $align: string;
   $fullWidth: boolean;
+  /** Only pass values already validated with CSS.supports (see safeCss in index.tsx) */
   $bg?: string;
   $color?: string;
   $radius?: string;
@@ -32,11 +33,25 @@ export const StyledButtonWrapper = styled.div<WrapperProps>(
       ${$radius ? `border-radius: ${$radius};` : ''}
     }
 
-    /* Disabled (custom condition true): faded + blurred, not clickable */
+    /* Keep custom colors on hover/focus (Cosmos hover styles could override them) */
+    ${$bg || $color
+      ? css`
+          button:hover:not(:disabled),
+          button:focus-visible:not(:disabled) {
+            ${$bg ? `background-color: ${$bg};` : ''}
+            ${$bg ? `border-color: ${$bg};` : ''}
+            ${$color ? `color: ${$color};` : ''}
+            filter: brightness(0.92);
+          }
+        `
+      : ''}
+
+    /* Disabled (custom condition true): faded and greyed out, not clickable.
+       Cosmos already fades a disabled button, so opacity is kept mild to avoid double fading. */
     ${$disabled
       ? css`
-          opacity: 0.5;
-          filter: blur(0.6px) grayscale(0.4);
+          opacity: 0.7;
+          filter: grayscale(0.4);
           cursor: not-allowed;
 
           button {
