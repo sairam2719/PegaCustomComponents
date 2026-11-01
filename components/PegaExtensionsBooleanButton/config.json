@@ -1,12 +1,12 @@
 {
-  "name": "Hanover_EFOLibrary_BooleanButton",
+  "name": "Pega_EFOLibrary_BooleanButton",
   "label": "Boolean button",
   "description": "Boolean field rendered as a configurable action button (refresh/search). Each click updates the property and fires field change.",
   "organization": "Pega",
-  "version": "1.0.2",
+  "version": "1.0.7",
   "library": "EFOLibrary",
   "allowedApplications": [],
-  "componentKey": "Hanover_EFOLibrary_BooleanButton",
+  "componentKey": "Pega_EFOLibrary_BooleanButton",
   "type": "Field",
   "subtype": "Boolean",
   "properties": [
@@ -15,13 +15,12 @@
       "format": "TEXT",
       "name": "label",
       "required": false
-
     },
     {
       "label": "Button label",
       "format": "TEXT",
       "name": "buttonLabel",
-       "required": false
+      "required": false
     },
     {
       "label": "Helper text",
@@ -39,9 +38,15 @@
       "name": "hideLabel"
     },
     {
+      "name": "readOnly",
+      "label": "Edit mode",
+      "format": "READONLY"
+    },
+    {
       "label": "Button style",
       "format": "GROUP",
       "name": "design_group",
+      "visibility": "(!readOnly = true)",
       "properties": [
         {
           "label": "Variant",
@@ -49,18 +54,9 @@
           "name": "variant",
           "required": false,
           "source": [
-            {
-              "key": "primary",
-              "value": "Primary"
-            },
-            {
-              "key": "secondary",
-              "value": "Secondary"
-            },
-            {
-              "key": "simple",
-              "value": "Simple"
-            }
+            { "key": "primary", "value": "Primary" },
+            { "key": "secondary", "value": "Secondary" },
+            { "key": "simple", "value": "Simple" }
           ]
         },
         {
@@ -69,38 +65,9 @@
           "name": "alignment",
           "required": false,
           "source": [
-            {
-              "key": "left",
-              "value": "Left"
-            },
-            {
-              "key": "center",
-              "value": "Center"
-            },
-            {
-              "key": "right",
-              "value": "Right"
-            }
-          ]
-        },
-        {
-          "label": "Vertical alignment",
-          "format": "SELECT",
-          "name": "verticalAlign",
-          "required": false,
-          "source": [
-            {
-              "key": "top",
-              "value": "Top"
-            },
-            {
-              "key": "center",
-              "value": "Center"
-            },
-            {
-              "key": "bottom",
-              "value": "Bottom"
-            }
+            { "key": "left", "value": "Left" },
+            { "key": "center", "value": "Center" },
+            { "key": "right", "value": "Right" }
           ]
         },
         {
@@ -109,26 +76,11 @@
           "name": "icon",
           "required": false,
           "source": [
-            {
-              "key": "none",
-              "value": "None"
-            },
-            {
-              "key": "refresh",
-              "value": "Refresh"
-            },
-            {
-              "key": "search",
-              "value": "Search"
-            },
-            {
-              "key": "check",
-              "value": "Check"
-            },
-            {
-              "key": "plus",
-              "value": "Plus"
-            }
+            { "key": "none", "value": "None" },
+            { "key": "refresh", "value": "Refresh" },
+            { "key": "search", "value": "Search" },
+            { "key": "check", "value": "Check" },
+            { "key": "plus", "value": "Plus" }
           ]
         },
         {
@@ -157,6 +109,7 @@
       "label": "Behavior",
       "format": "GROUP",
       "name": "behavior_group",
+      "visibility": "(!readOnly = true)",
       "properties": [
         {
           "label": "On click",
@@ -164,15 +117,57 @@
           "name": "valueBehavior",
           "required": false,
           "source": [
-            {
-              "key": "toggle",
-              "value": "Toggle true/false"
-            },
-            {
-              "key": "alwaysTrue",
-              "value": "Always set true"
-            }
+            { "key": "toggle", "value": "Toggle true/false" },
+            { "key": "alwaysTrue", "value": "Always set true" }
           ]
+        }
+      ]
+    },
+    {
+      "label": "Read-only settings",
+      "format": "GROUP",
+      "properties": [
+        {
+          "format": "SELECT",
+          "name": "displayValue",
+          "label": "Display Value",
+          "defaultValue": "Yes/No",
+          "localize": true,
+          "source": [
+            { "key": "Yes/No", "value": "Yes/No" },
+            { "key": "True/False", "value": "True/False" }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Conditions",
+      "format": "GROUP",
+      "properties": [
+        {
+          "name": "disabled",
+          "label": "Disabled",
+          "format": "DISABLED",
+          "visibility": "(!readOnly = true)"
+        },
+        {
+          "name": "visibility",
+          "label": "Visibility",
+          "format": "VISIBILITY"
+        }
+      ]
+    },
+    {
+      "label": "Advanced",
+      "format": "GROUP",
+      "collapsible": true,
+      "properties": [
+        {
+          "name": "testId",
+          "label": "Test ID",
+          "format": "TEXT",
+          "ignorePattern": "[^-_\\p{N}\\p{L}]",
+          "includeAnnotations": false
         }
       ]
     }
@@ -185,6 +180,6 @@
     "alignment": "left",
     "icon": "none",
     "valueBehavior": "toggle",
-    "verticalAlign": "bottom"
+    "displayValue": "Yes/No"
   }
 }
